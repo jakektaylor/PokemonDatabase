@@ -1,0 +1,24 @@
+html
+	head
+		title Pokemon Card Database 
+		link(rel="stylesheet", href="./styles/search.css", type="text/css")
+		link(rel="stylesheet", href="/styles/header.css", type="text/css")
+	body(onload="init()")
+		include ./partials/header.pug
+		div#main
+			label(for="search-options") Choose search type:
+			div(id="search")
+				select(id="search-options")
+					if searchOptions.length > 0
+						each searchOption, index in searchOptions
+							option(id="option-"+index, class="search-option") #{searchOption}
+				input(id="search-box", class="text-field", placeholder="Search...")
+				button(id="search-button") Search
+		h1 Search Results:
+		div#results-outer
+	script(src="./scripts/search.js")
+
+			
+
+
+			

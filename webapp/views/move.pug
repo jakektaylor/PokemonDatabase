@@ -1,0 +1,25 @@
+html
+	head
+		title #{data.move.name}
+		link(rel="stylesheet", href="/styles/move.css", type="text/css")
+		link(rel="stylesheet", href="/styles/header.css", type="text/css")
+	body
+		include ./partials/header.pug
+		div#main
+			div#card-column
+				h2 Move Appears On
+				each card in data.cards
+					div(class="card")
+						a(href=card.url) #{card.name}, #{card.set}
+			div#stat-table
+				div#title
+					h1 #{data.move.name}, #{data.move.type}
+				div(class="move-stat")
+					p Move Name: #{data.move.name}
+				div(class="move-stat")
+					p Move Type: #{data.move.type}
+				div(class="move-stat")
+					p Move Damage: #{data.move.damage}
+				div(class="move-stat")
+					p Move Description: #{data.move.description}
+				

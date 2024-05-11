@@ -1,0 +1,22 @@
+html
+	head
+		title #{data.card.pokemon_name}
+		link(rel="stylesheet", href="/styles/card.css", type="text/css")
+		link(rel="stylesheet", href="/styles/header.css", type="text/css")
+	body
+		include ./partials/header.pug
+		div#main
+			div#image-column
+				div#title
+					h1 #{data.card["Name"]}, #{data.card["Set Name"]}
+				img(src="/images/"+data.card["Name"]+".png")
+			div#stat-table
+				each val, key in data.card
+					div(class="card-stat")
+						p #{key}: #{val}
+				div#move-table
+					h2 Pokemon Moves
+					each move, index in data.moves
+						div(class="move")
+							a(href=move.url) #{move.text}
+				

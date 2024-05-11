@@ -1,0 +1,52 @@
+body {
+    background-color: #286496;
+}
+
+#card-column{
+    width:48%;
+    height:100vh;
+    float:left;
+    text-align: center;
+    color:#FFFFFF;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    background-color: #498abf;
+}
+
+#stat-table {
+    background-color: #498abf;
+    float: right;
+    width: 50%;
+    height: 100vh;
+    border-style: solid;
+    border-width: 12px;
+    border-color: rgb(255, 199, 45);
+    text-align: center;
+}
+
+.move-stat{
+    background-color: #05477e;
+    color:#FFFFFF;
+    border-style:solid;
+    border-radius: 5px;
+    border-color: #90cafa;
+    margin: 5px;
+    font-size: 20px;
+}
+
+.card {
+    background-color: #5ba0d8;
+    border-width: 8px;
+    border-color: antiquewhite;
+    margin-top: 25px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.card > a {
+    color: #FFFFFF;
+}
+
+#title {
+    color:#FFFFFF;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;;
+}
