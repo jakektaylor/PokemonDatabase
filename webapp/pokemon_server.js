@@ -41,7 +41,7 @@ function getHomePage(req, res, next){
     res.setHeader("Content-Type", "text/html");
     res.status(200);
     res.render('search', {searchOptions:searchOptions});
-    //res.end();
+    next();
 }
 
 /*This function handles all queries to the database made in the search bar. It sends back JSON data for cards
@@ -55,7 +55,7 @@ function queryDatabase(req, res, next){
     let requestValue = req.query.body;
 
     //Convert request value to a lowercase string for queries that involve strings.
-    if(requestValue!=="" && requestType !== 7 &&requestType !== 2){
+    if(requestValue!== "" && requestType !== 7 && requestType !== 2){
          requestValue = requestValue.toLowerCase();                            //Convert to lowercase to make queries insensitive.
     }
     //Otherwise, convert to a number.
@@ -70,7 +70,7 @@ function queryDatabase(req, res, next){
                 throw err;
             }
 
-            //Formulate the search results in the form {text: <text to be url}
+            //Formulate the search results
             let searchResults=[];
             rows.forEach((row)=>{
                 searchResults.push({text:`${row.name}, ${row.set_name}`, url:`/cards/${row.set_name}/${row.name}`});
@@ -79,7 +79,7 @@ function queryDatabase(req, res, next){
             res.setHeader("Content-Type", "application/json");
             res.status(200);
             res.send(JSON.stringify(searchResults));
-            res.end();
+            next();
         });
         
     }
@@ -90,7 +90,7 @@ function queryDatabase(req, res, next){
                 throw err;
             }
 
-            //Formulate the search results in the form {text: <text to be url}
+            //Formulate the search results
             let searchResults=[];
             rows.forEach((row)=>{
                 searchResults.push({text:`${row.name}, ${row.set_name}`, url:`/cards/${row.set_name}/${row.name}`});
@@ -99,7 +99,7 @@ function queryDatabase(req, res, next){
             res.setHeader("Content-Type", "application/json");
             res.status(200);
             res.send(JSON.stringify(searchResults));
-            res.end();
+            next();
         });
     }
     //REQUEST TYPE 2: In this case the user is searching for a card based on its HP.
@@ -109,7 +109,7 @@ function queryDatabase(req, res, next){
                 throw err;
             }
 
-            //Formulate the search results in the form {text: <text to be url}
+            //Formulate the search results
             let searchResults=[];
             rows.forEach((row)=>{
                 searchResults.push({text:`${row.name}, ${row.set_name}`, url:`/cards/${row.set_name}/${row.name}`});
@@ -118,7 +118,7 @@ function queryDatabase(req, res, next){
             res.setHeader("Content-Type", "application/json");
             res.status(200);
             res.send(JSON.stringify(searchResults));
-            res.end();
+            next();
         });
     }
 
@@ -138,7 +138,7 @@ function queryDatabase(req, res, next){
             res.setHeader("Content-Type", "application/json");
             res.status(200);
             res.send(JSON.stringify(searchResults));
-            res.end();
+            next();
         });
     }
     //REQUEST TYPE 4: In this case the user is searching for a card based on a move that is on it.
@@ -148,7 +148,7 @@ function queryDatabase(req, res, next){
                 throw err;
             }
 
-            //Formulate the search results in the form {text: <text to be url}
+            //Formulate the search results
             let searchResults=[];
             rows.forEach((row)=>{
                 searchResults.push({text:`${row.pokemon_name}, ${row.set_name}`, url:`/cards/${row.set_name}/${row.pokemon_name}`});
@@ -157,18 +157,18 @@ function queryDatabase(req, res, next){
             res.setHeader("Content-Type", "application/json");
             res.status(200);
             res.send(JSON.stringify(searchResults));
-            res.end();
+            next();
         });
     }
 
     //REQUEST TYPE 5: The user is searching for a move that appears on a card based on its name.
     else if (requestType === 5){
-        db.all("SELECT name FROM  moves WHERE lower(name) LIKE "+`'%${requestValue}%'`+";", [], (err, rows)=>{
+        db.all("SELECT name FROM moves WHERE lower(name) LIKE "+`'%${requestValue}%'`+";", [], (err, rows)=>{
             if(err){
                 throw err;
             }
 
-            //Formulate the search results in the form {text: <text to be url>}
+            //Formulate the search results
             let searchResults=[];
             rows.forEach((row)=>{
                 searchResults.push({text:`${row.name}`, url:`/moves/${row.name}`});
@@ -177,7 +177,7 @@ function queryDatabase(req, res, next){
             res.setHeader("Content-Type", "application/json");
             res.status(200);
             res.send(JSON.stringify(searchResults));
-            res.end();
+            next();
         });
     }
     //REQUEST TYPE 6: The user is searching for a move that appears on a card based on its type.
@@ -187,7 +187,7 @@ function queryDatabase(req, res, next){
                 throw err;
             }
 
-            //Formulate the search results in the form {text: <text to be url}
+            //Formulate the search results
             let searchResults=[];
             rows.forEach((row)=>{
                 searchResults.push({text:`${row.name}`, url:`/moves/${row.name}`});
@@ -196,7 +196,7 @@ function queryDatabase(req, res, next){
             res.setHeader("Content-Type", "application/json");
             res.status(200);
             res.send(JSON.stringify(searchResults));
-            res.end();
+            next();
         });
     }
     //REQUEST TYPE 7: The user is searching moves that deal a minimum amount of damage.
@@ -206,7 +206,7 @@ function queryDatabase(req, res, next){
                 throw err;
             }
 
-            //Formulate the search results in the form {text: <text to be url}
+            //Formulate the search results
             let searchResults=[];
             rows.forEach((row)=>{
                 searchResults.push({text:`${row.name}`, url:`/moves/${row.name}`});
@@ -215,10 +215,9 @@ function queryDatabase(req, res, next){
             res.setHeader("Content-Type", "application/json");
             res.status(200);
             res.send(JSON.stringify(searchResults));
-            res.end();
+            next();
         });
     }
-
 }
 
 /*Purpose: This function is responsible for displaying a card. The information on the card includes:
@@ -241,7 +240,7 @@ function showCard(req, res, next){
         }
         //Check to make sure a row was found. If not, return.
         if(row){
-            /*We now add the name of nthe Pokemon and the name of the set to the cardData.*/
+            /*We now add the name of the Pokemon and the name of the set to the cardData.*/
             cardData["Name"] = pokemon;
             cardData["Set Name"] = set;
             cardData["HP"]=row.HP;
