@@ -1,34 +1,84 @@
-#header-div {
-    border-top:10px;
-    border-bottom:10px;
-    border-left: 10px;
-    border-right: 10px;
-    outline: 20px;
-    padding: 0%;
-    margin-top: 0px;
-    border-style: solid;
-    border-color: rgb(255, 199, 45);
-    background-color: rgb(190, 60, 60);
-    width:95%;
-    display: inline-block;
-    position: relative;
-    text-align: center;
-    margin-bottom: 20px;
+@import url('https://fonts.googleapis.com/css2?family=Freeman&display=swap');
 
-    font-family: 'Courier New', Courier, monospace;
-    color: rgb(255, 255, 255);
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
 }
 
-#header-link-div {
-    float: left;
-    position: relative;
-    left: 220px;
-    bottom: 45px;
-    font-size: large;
-    color: #FFFFFF;}
+body {
+    background-color:rgb(252, 119, 119);
+}
+
+#nav-bar {
+    background-color: rgb(222, 74, 74);
+    display: flex;
+    margin: 0px 0px 20px 0px;
+    font-family: "Freeman", sans-serif;
+    font-size: 16px;
+    color: rgb(255, 255, 255);
+    justify-content: space-between;
+    align-items: center;
+    padding: 0% 2%;
+}
 
 .link {
-    color: #FFFFFF;
-    padding:20px;
+    color: rgb(148, 198, 244);
+    transition: all 1s ease 0s;
+    text-decoration: none;
+    font-size: 20px;
 }
 
+.link:hover {
+    color:rgba(42, 83, 165, 1);
+}
+
+
+#links ul {
+    list-style-type: none;
+}
+
+#links ul li {
+    display: inline-block;
+    margin-right: 20px;
+}
+
+#search {
+    display: flex;
+    justify-content: space-between;
+    align-items:center;    
+}
+
+#search-options-div {
+    width: 35%;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 21px;
+}
+
+#select-option {
+    width:100%;
+    height: 30px;
+    font-size: 16px;
+    font-style: Arial;
+    text-align: left;
+    border-radius: 10px;
+}
+
+#search-box {
+    width: 40%;
+    height: 30px;
+    font-size: 16px;
+}
+
+#search-button{
+    width: auto;
+    height: 30px;
+    font-size: medium;
+    background-color: rgb(148, 198, 244);
+    font-family: "Freeman", sans-serif;
+    color: rgba(255, 255, 255, 1);
+    border-radius: 10px;
+    border-style: none;
+    padding: 0 10px;
+}

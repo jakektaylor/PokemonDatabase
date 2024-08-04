@@ -1,32 +1,61 @@
-body{
-    background-color: rgb(20, 121, 209);
-}
 
+@import url('https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap');
+/*Styles for the entire page (main) and the left side of the page where the image of the card is displayed.*/
 #main {
     display: flex;
-    flex-wrap: wrap;
     flex-direction: row;
-    background-color: rgb(20, 121, 209);
+    background-color: none;
 }
 
 #image-column{
-    width:48%;
-    height:100vh;
+    width: 49%;
     float:left;
     text-align: center;
-    color:#FFFFFF;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    justify-content: center;
 }
 
+#card-image {
+    max-width:80%;
+    max-height:50%;
+}
+
+#card-image-name {
+    margin: 0px;
+    padding: 0px;
+    border-width: 0px;
+    color:#FFFFFF;
+    font-family: "Kanit", "sans-serif";
+    font-style: italic;
+    font-weight: 600;
+    font-size: 30px;
+}
+
+#card-image-set {
+    margin: 0px;
+    padding: 0px;
+    border-width: 0px;
+    border: none;
+    color:#FFFFFF;
+    font-family: "Kanit", "sans-serif";
+    font-weight: 400;
+    font-size: 20px;
+}
+
+/*Styles for the right side of the page where all of the information is displayed (not including attacks). 
+However, stat-table contains move-table.*/
 #stat-table {
     background-color: #498abf;
     float: right;
-    width: 50%;
-    height: 100vh;
+    width: 49%;
     border-style: solid;
-    border-width: 10px;
-    border-color: rgb(255, 199, 45);
+    padding: 0px 10px;
+    border: none;
+    display: flex;
+    flex-direction: column;
     text-align: center;
+    margin-bottom: 20px;
 }
 
 .card-stat{
@@ -35,34 +64,78 @@ body{
     border-style:solid;
     border-radius: 5px;
     border-color: #90cafa;
-    margin: 5px;
-    font-size: 20px;
+    height: 50px;
+    align-content: center;
+    font-family: "Roboto Mono", sans-serif;
+    font-weight: 400;
+    font-size: 18px;
 }
 
-#move-table{
+.card-stat > p {
+    vertical-align: middle;
+    text-align: center;
+    display: inline-block;
+}
+
+.card-stat > img {
+    vertical-align: middle;
+    max-height: 60%;
+}
+
+/*Styles for the table of attacks*/
+
+#move-table-wrapper {
+    font-size: 30px;
+    margin-top: 2vh;
+    color:#FFFFFF;
+    font-family: "Roboto Mono", sans-serif;
+}
+
+#move-table {
+    margin-top: 2vh;
+}
+
+#move-table li{
+    list-style: none;
+    width: 100%;
+    margin-bottom: 10px;
     background-color: #05477e;
-    height: 180px;
-    position: relative;
-    width:90%;
-    left:5%;
-    border-radius: 10%;
-    color:#FFFFFF;
-    font-family: 'Courier New', Courier, monospace;
-    border-color: #90cafa;
+    padding: 10px;
+    border-radius: 4px;
 }
 
-.move {
-    margin-top: 15px;
+#move-table li label {
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 18px;
+    font-weight: 500;
+    cursor: pointer;
     color:#FFFFFF;
-    font-family: 'Times New Roman', Times, serif;
-    font-size: 25px;
 }
 
-.move > a {
+#move-table li label span {
+    font-size: 22px;
     color: #FFFFFF;
 }
 
-img {
-    max-width:80%;
-    max-height:61%;
+#move-table label + input[type="radio"] {
+    display: none;
+}
+
+#move-table .description {
+    padding: 0px 10px;
+    line-height: 26px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s;
+    text-align: left;
+    color:#FFFFFF;
+    font-size: 18px;
+}
+
+#move-table label + input[type="radio"]:checked + .description {
+    max-height: 100%;
+    overflow: scroll;
 }

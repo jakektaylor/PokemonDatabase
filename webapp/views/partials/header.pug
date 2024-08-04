@@ -1,5 +1,19 @@
-div(id="header-div")
-	div("header-title-div")
-		h1(id="header-title") Pokemon Card Database
-	div(id="header-link-div")
-		a(href="/", class="link") Home
+header(id="nav-bar")
+	img(src="/images/master_ball_icon.svg" width="100px" height="100px")
+	h1(id="title") Pokemon Card Database
+	nav(id="links")
+		ul
+			li
+				a(href="/" class="link") Home
+			li
+				a(href="/" class="link") Pokemon
+	div#search
+		div#search-options-div
+			label(for="select-option", id="select-option-label") Choose search type:
+			select(name="select-option", id="select-option")
+				if searchOptions.length > 0
+					each searchOption, index in searchOptions
+						option(id="option-"+index, class="search-option") #{searchOption}
+		input(id="search-box", class="text-field", placeholder="Search...")
+		button(id="search-button") Search
+			

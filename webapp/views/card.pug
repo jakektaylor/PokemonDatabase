@@ -1,22 +1,41 @@
 html
 	head
+		script(src="/scripts/jquery-3.7.1.min.js")
+		script(src="/scripts/search.js")
+		script(src="/scripts/card.js")
 		title #{data.card.pokemon_name}
+		link(rel="icon", href="/images/master_ball_icon.svg" type="image/svg+xml", sizes="any")
 		link(rel="stylesheet", href="/styles/card.css", type="text/css")
 		link(rel="stylesheet", href="/styles/header.css", type="text/css")
 	body
 		include ./partials/header.pug
 		div#main
 			div#image-column
-				div#title
-					h1 #{data.card["Name"]}, #{data.card["Set Name"]}
-				img(src="/images/"+data.card["Name"]+".png")
+				div
+					h2#card-image-name #{data.card["Name"]}
+					h3#card-image-set Set: #{data.card["Set Name"]}
+				img(id="card-image" src=data.card["Image"])
 			div#stat-table
+				div(class="card-stat")
+					p Name: #{data.card["Name"]}
+				div(class="card-stat") Types: 
+					each val in data.card["Types"]
+						p #{val["Name"]}
+						img(src=val["Image"])
 				each val, key in data.card
-					div(class="card-stat")
-						p #{key}: #{val}
-				div#move-table
-					h2 Pokemon Moves
-					each move, index in data.moves
-						div(class="move")
-							a(href=move.url) #{move.text}
+					if key !== "Image" && key !== "Types" && key !== "Name"
+						div(class="card-stat")
+							p #{key}: #{val}
+				figure#move-table-wrapper
+					figcaption Attacks
+					ul#move-table
+						each attack, index in data.attacks
+							li
+								label(for="move"+index) #{attack.name}
+									span &#x2b;
+								input(type="radio" name="move"+index id="move"+index)
+								div(class="description")
+									p Damage: #{attack.damage}
+									p #{attack.text}
+
 				
