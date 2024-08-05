@@ -8,15 +8,26 @@ html
 		link(rel="stylesheet", href="/styles/header.css", type="text/css")
 	body
 		include ./partials/header.pug
-		if searchResults.length > 0
-			h1(id="search-results-header") Search Results
-		div#results-outer
+		div#main
 			if searchResults.length > 0
-				each result in searchResults
-					div(class="search-result")
-						a(href=result.url) #{result.text}
+				h2#results-label Search Results
+				div#results-outer
+					each result in searchResults
+						div(class="search-result")
+							a(href=result.url) #{result.text}
+			else
+				div#welcome-message #{message}
+					ul#welcome-list The following search options are available on this website:
+						li By the name of the Pokémon that appears on the card 
+						li By the type of the Pokémon that appears on the card 
+						li By the minimum HP of the card 
+						li By the name of the set series and/or set name the card belongs to
+						li By the name of an attack that appears on the card
+					span The database file, the python script that generated it and the soure code for the front-end and back-end of the website can be found on my GitHub 
+						a(href="https://github.com/jakektaylor") https://github.com/jakektaylor.
+				img#welcome-image(src="https://www.pngall.com/wp-content/uploads/4/Pokeball-PNG-File.png")
 
-			
+				
 
 
-			
+				

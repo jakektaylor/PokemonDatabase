@@ -1,51 +1,91 @@
 @import url('https://fonts.googleapis.com/css2?family=Freeman&display=swap');
 
-body{
+#main{
     text-align: center;
+}
+
+/*All welcome-* is displayed when a search has not been made.*/
+#welcome-message {
+    width:94%;
+    text-align: left;
+    margin-left: 2%;
+    margin-right: 2%;
+    margin-bottom: 1vw;
+    padding: 2%;
+    background-color: #498abf;
+    font-family: "Freeman", sans-serif;
+    font-weight: 100;
+    color: #ffffff;
+}
+
+#welcome-list {
+    margin-top: 2vh;
+    list-style: none;
+    background-color: #427aa8;
+    margin-bottom: 2vh;
+    padding: 1vw;
+}
+
+#welcome-list > li {
+    margin-top: 1vh;
+}
+
+#welcome-list > li:before {
+    content: "✪";
+    padding-right: 0.5vw;
+    padding-left: 1vh;
+}
+
+#welcome-image {
+    max-height: 4%;
+    max-width: 4%;
+    margin-top: 2vh;
+    margin-bottom: 2vh;
+}
+
+/* Formatting the search results */
+
+#results-label {
+    text-align: center;
+    font-family: "Freeman", sans-serif;
+    margin-bottom: 2vh;
+    font-size: 4vh;
+    color:rgb(255, 255, 255);
 }
 
 #results-outer {
-    background-color: none;
     text-align: center;
     display: flex;
-    justify-content: left;
     flex-direction: row;
     flex-wrap: wrap;
+    width:90%;
+    margin: 0 5%;
+    justify-content:center;
+    background-color: #427aa8;;
+    border-style: ridge;
+    padding: 1vw 0.5vw;
+    border-color: #3c729f;
+    border-width: 2vw;
 }
 
-
 .search-result {
-    background-color: rgb(24, 72, 114);
-    width: 30%;
+    background-color: rgb(255, 61, 61);
+    width: 20%;
     display: inline-block;
-    margin-top:15px;
-    margin-right: 5px;
-    margin-left: 5px;
-    border-color: rgb(216, 0, 0);
-    border-width: 2px;
-    border-style: solid;
-    border-radius: 20px;
-    padding-left: 5px;
-    padding-right: 5px;
-    padding-top: 10px;
-    padding-bottom: 5px;
+    margin: 1.5vh 0.5vw;
+    text-decoration: underline;
+    text-decoration-color: #ffffff;
+    border-color: rgb(255, 255, 255);
+    border-width: 0.3vw;
+    border-style: double;
+    padding: 1% 1%;
 }
 
 .search-result > a { 
-    color: rgb(255, 255, 255);
-    font-size: 15px;
+    color: #ffffff;
+    font-size: 3vh;
     text-decoration: none;
 }
 
-#search-results-header {
-    font-family: "Freeman", sans-serif;
-    color: aliceblue;
-    font-size: 20px;
-    vertical-align: top;
-}
-
-#main {
-    text-align: left;
-}
 
 

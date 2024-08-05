@@ -10,6 +10,10 @@ html
 	body
 		include ./partials/header.pug
 		div#main
+			each val in data.card["Types"]
+				video#video(autoplay loop muted)
+					source(src=`/type_videos/${val["Name"]}.mp4` type="video/mp4")
+				- break
 			div#image-column
 				div
 					h2#card-image-name #{data.card["Name"]}
@@ -21,7 +25,7 @@ html
 				div(class="card-stat") Types: 
 					each val in data.card["Types"]
 						p #{val["Name"]}
-						img(src=val["Image"])
+						img(class="type-image" src=val["Image"])
 				each val, key in data.card
 					if key !== "Image" && key !== "Types" && key !== "Name"
 						div(class="card-stat")
@@ -36,6 +40,11 @@ html
 								input(type="radio" name="move"+index id="move"+index)
 								div(class="description")
 									p Damage: #{attack.damage}
+									span Cost:
+										each val in attack["cost"]
+											img(class="type-image" src=`/images/types/${val}.png`)
+									if attack.text.length > 0
+										br
 									p #{attack.text}
 
 				

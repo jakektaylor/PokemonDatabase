@@ -9,6 +9,15 @@
     background-color: none;
 }
 
+#video {
+    position: fixed;
+    right: 0;
+    top: 0;
+    min-width: 100%;
+    max-width: 100%;
+    z-index: -1;
+}
+
 #image-column{
     width: 49%;
     float:left;
@@ -18,29 +27,22 @@
 
 #card-image {
     max-width:80%;
-    max-height:50%;
+    max-height:45%;
 }
 
 #card-image-name {
-    margin: 0px;
-    padding: 0px;
-    border-width: 0px;
     color:#FFFFFF;
     font-family: "Kanit", "sans-serif";
     font-style: italic;
     font-weight: 600;
-    font-size: 30px;
+    font-size: 5.5vh;
 }
 
 #card-image-set {
-    margin: 0px;
-    padding: 0px;
-    border-width: 0px;
-    border: none;
     color:#FFFFFF;
     font-family: "Kanit", "sans-serif";
     font-weight: 400;
-    font-size: 20px;
+    font-size: 3.5vh;
 }
 
 /*Styles for the right side of the page where all of the information is displayed (not including attacks). 
@@ -49,26 +51,30 @@ However, stat-table contains move-table.*/
     background-color: #498abf;
     float: right;
     width: 49%;
-    border-style: solid;
-    padding: 0px 10px;
-    border: none;
+    padding: 2vh 1vw;
     display: flex;
     flex-direction: column;
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 6vh;
+    height: fit-content;
+    border-radius: 1vw;
+    border-style: double;
+    border-width: 1vw;
+    border-color: #49f0fc
 }
 
 .card-stat{
     background-color: #05477e;
     color:#FFFFFF;
     border-style:solid;
-    border-radius: 5px;
+    border-radius: 0.4vw;
     border-color: #90cafa;
-    height: 50px;
+    height: 10vh;
     align-content: center;
     font-family: "Roboto Mono", sans-serif;
     font-weight: 400;
-    font-size: 18px;
+    font-size: 100%;
+    margin-bottom: 0.5vh;
 }
 
 .card-stat > p {
@@ -77,15 +83,11 @@ However, stat-table contains move-table.*/
     display: inline-block;
 }
 
-.card-stat > img {
-    vertical-align: middle;
-    max-height: 60%;
-}
-
 /*Styles for the table of attacks*/
 
 #move-table-wrapper {
-    font-size: 30px;
+    font-size: 6vh;
+    font-weight: 800;
     margin-top: 2vh;
     color:#FFFFFF;
     font-family: "Roboto Mono", sans-serif;
@@ -93,30 +95,33 @@ However, stat-table contains move-table.*/
 
 #move-table {
     margin-top: 2vh;
+    margin-bottom: 0%;
 }
 
 #move-table li{
     list-style: none;
     width: 100%;
-    margin-bottom: 10px;
+    margin-bottom: 1vh;
     background-color: #05477e;
-    padding: 10px;
-    border-radius: 4px;
+    padding: 1.2vh;
+    border-style:solid;
+    border-radius: 0.4vw;
+    border-color: #90cafa;
 }
 
 #move-table li label {
-    padding: 10px;
+    padding: 2vh;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 18px;
+    font-size: 3.5vh;
     font-weight: 500;
     cursor: pointer;
     color:#FFFFFF;
 }
 
 #move-table li label span {
-    font-size: 22px;
+    font-size: 4vh;
     color: #FFFFFF;
 }
 
@@ -124,18 +129,24 @@ However, stat-table contains move-table.*/
     display: none;
 }
 
+.type-image {
+    max-height: 6vh;
+    max-width: 6vh;
+    vertical-align: middle;
+}
+
 #move-table .description {
-    padding: 0px 10px;
-    line-height: 26px;
+    padding: 0 2vh;
+    line-height: 5vh;
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.5s;
     text-align: left;
     color:#FFFFFF;
-    font-size: 18px;
+    font-size: 3vh;
+    font-weight: 400;
 }
 
 #move-table label + input[type="radio"]:checked + .description {
     max-height: 100%;
-    overflow: scroll;
 }

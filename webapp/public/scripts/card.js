@@ -17,7 +17,7 @@ function toggleExpand() {
     } 
     //Now, we are collapsing it since it was expanded when we clicked on it.
     else {
-        labelIcon.html("&#x2b");
         $(this).prop("checked", false);
+        setTimeout(()=>labelIcon.html("&#x2b"), 500);
     }
 }

@@ -36,9 +36,13 @@ function init(){
 
 /*This function is responsible for sending the HTML for the homepage to the client.*/
 function getHomePage(req, res, next){
+    let message = "Welcome to the Pokemon Card Database website. Here you can search a database consisting of 2336 unique Pokemon cards from " +
+    "20 unique sets. All cards have Pokemon on them; Energy and Trainer cards were not included in the database. All of the card data was " +
+    "collected using a Python script which made requests to the 'Pokémon TCG API'. Here is a link to the webpage describing the API: https://pokemontcg.io/. " +
+    "The website was created by me, Jake Taylor.";
     res.setHeader("Content-Type", "text/html");
     res.status(200);
-    res.render('search', {searchOptions:searchOptions, searchResults:[]});
+    res.render('search', {searchOptions:searchOptions, searchResults:[], message:message});
     next();
 }
 
@@ -47,7 +51,6 @@ and moves depending on the search type. The HTML for the results is generated on
 function queryDatabase(req, res, next){
     let requestType = Number(req.query.type);
     let requestValue = req.query.body;
-    let isJsonReq = req.accepts()[0] === "application/json";               //JSON is requested if we are already on the search page 
 
     //Convert request value to a lowercase string for queries that involve strings.
     if(requestType !== 2){
@@ -151,17 +154,9 @@ function queryDatabase(req, res, next){
             });
         }
     }).then((searchResults)=> {
-        //Send back the response.
-        if(isJsonReq) {
-            res.setHeader("Content-Type", "application/json");
-            res.status(200);
-            res.send(JSON.stringify({searchResults: searchResults}));
-        }
-        else {
-            res.setHeader("Content-Type", "text/html");
-            res.status(200);
-            res.render('search', {searchOptions:searchOptions, searchResults:searchResults});
-        }
+        res.setHeader("Content-Type", "text/html");
+        res.status(200);
+        res.render('search', {searchOptions:searchOptions, searchResults:searchResults});
         next();
     }).catch((err)=>{
         res.status(500);
@@ -231,12 +226,24 @@ function showCard(req, res, next){
         db.all(moveQuery, [pokemon_number, set_id], (err, rows) => {
             if(err) throw err;
             let attackData = [];                                  //Move object containing the move information.
+            //Determine the cost of the attack.
+            let costs = {}
+            rows.forEach((row)=>{
+                costs[row["name"]] = [];
+                for(let key in row) {
+                    if(key.substring(key.length-4, key.length) === "cost" && row[key] > 0) {
+                        for(let i=0;i<row[key];i++){
+                             costs[row["name"]].unshift(key.substring(0, key.length-5));
+                        }
+                    }
+                }
+            });
             rows.forEach((row) => {
                 //If the attack has no associated damage value, set the damage value to 0.
                 if(row.damage.length === 0) {
-                    attackData.unshift({"name": row.attack_name, "text": row.description, "damage": 0});
+                    attackData.push({"name": row.attack_name, "text": row.description, "cost": costs[row.attack_name], "damage": 0});
                 } else {
-                    attackData.unshift({"name": row.attack_name, "text": row.description, "damage": row.damage});
+                    attackData.push({"name": row.attack_name, "text": row.description, "cost": costs[row.attack_name], "damage": row.damage});
                 }
             });
             res.status(200);
