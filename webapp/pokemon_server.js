@@ -29,7 +29,9 @@ function init(){
 
     app.get("/", getHomePage);
     app.get("/search", queryDatabase);
+    app.get("/cards/:set?", showSet); 
     app.get("/cards/:set/:number", showCard);
+    app.get("/pokemon", showPokemon)
     app.listen(3000);
     console.log("Server listening at http://localhost:3000");
 }
@@ -42,7 +44,7 @@ function getHomePage(req, res, next){
     "The website was created by me, Jake Taylor.";
     res.setHeader("Content-Type", "text/html");
     res.status(200);
-    res.render('search', {searchOptions:searchOptions, searchResults:[], message:message});
+    res.render('search', {searchOptions:searchOptions, searchResults:[], message:message, set:null});
     next();
 }
 
@@ -156,7 +158,7 @@ function queryDatabase(req, res, next){
     }).then((searchResults)=> {
         res.setHeader("Content-Type", "text/html");
         res.status(200);
-        res.render('search', {searchOptions:searchOptions, searchResults:searchResults});
+        res.render('search', {searchOptions:searchOptions, searchResults:searchResults, set:null});
         next();
     }).catch((err)=>{
         res.status(500);
@@ -232,6 +234,7 @@ function showCard(req, res, next){
                 costs[row["name"]] = [];
                 for(let key in row) {
                     if(key.substring(key.length-4, key.length) === "cost" && row[key] > 0) {
+                        //Add the cost type to the array once for each of the amount that is required.
                         for(let i=0;i<row[key];i++){
                              costs[row["name"]].unshift(key.substring(0, key.length-5));
                         }
@@ -258,6 +261,82 @@ function showCard(req, res, next){
         res.send(err.message);
         next();
     });
-
 }
 
+/*This function is responsible for showing all of the cards */
+function showSet(req, res, next) {
+    //List of all set ids.
+    const SETS = ["base1", "base2", "bw1", "bw9","dp1", "dp7", "ex1", "ex6","ex9","neo1","neo2","pl4","sm1","sm8","sv1","sv4","swsh1","swsh10","xy1","xy6"];
+
+    //If the request parameter is not a valid set id, we display all sets and allow the user to choose one. Otherwise, we display all cards 
+    //in the set.
+    let param = req.params.set;
+    if(!param || !SETS.includes(param)) {
+        new Promise((resolve, reject)=>{
+            let setQuery = "SELECT * FROM sets;"
+            db.all(setQuery, [], (err, rows)=>{
+                if(err) throw err;
+                else {
+                    let setResults = [];
+                    rows.forEach((row)=>{
+                        setResults.push(row);
+                    });
+                    resolve(setResults);
+                }
+            });
+        }).then((setResults)=>{
+            res.status(200);
+            res.setHeader("Content-Type", "text/html");
+            res.render("sets", data={sets: setResults, searchOptions: searchOptions});
+            next();
+        }).catch((err)=>{
+            console.log(`Error getting set data: ${err.message}`);
+            res.status(404);
+            res.send(err.message);
+            next();
+        });
+    } else if(SETS.includes(param) && param.length > 0) {
+        param = param.toLowerCase().concat("%");
+        //Handle similarly to how we would if the user searched for the set in the search bar,
+        new Promise((resolve, reject) => {
+            db.all("SELECT cards.number as card_number, cards.pokemon_name, cards.set_id, sets.series AS set_series, sets.name AS set_name, sets.total_cards, sets.set_logo FROM cards INNER JOIN sets ON cards.set_id = sets.id WHERE sets.id LIKE ?;", [param], (err, rows)=>{
+            if(err) throw err;
+            else {
+                let searchResults = [];
+                let setInfo = {};
+                //Formulate the search results.
+                rows.forEach((row)=>{
+                    searchResults.push({text:`${row.pokemon_name} (Series: ${row.set_series}, Set: ${row.set_name})`, url:`/cards/${row.set_id}/${row.card_number}`});
+                    if (Object.keys(setInfo).length === 0) {
+                        setInfo["id"] = row.set_id;
+                        setInfo["name"] = row.set_name;
+                        setInfo["series"] = row.set_series;
+                        setInfo["totalCards"] = row.total_cards;
+                        setInfo["logo"] = row.set_logo;
+                    }
+                });
+                
+                //Need to add both to an object as passing two arguments to then will result in the second beong used for reject().
+                let result = {search: searchResults, set: setInfo};
+                
+                resolve(result);
+            }
+        }
+        )}).then((result) => {
+            let searchResults = result["search"];
+            let setInfo = result["set"];
+            res.setHeader("Content-Type", "text/html");
+            res.status(200);
+            res.render('search', {searchOptions:searchOptions, "searchResults":searchResults, setInfo: setInfo});
+            next();
+        }).catch((err)=>{
+            res.status(500);
+            res.send(`SQLite Error: ${err.message}`);
+            next(); 
+        });
+    }
+}
+
+function showPokemon() {
+    
+}

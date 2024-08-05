@@ -1,0 +1,31 @@
+html
+ head
+  script(src="/scripts/jquery-3.7.1.min.js")
+  script(src="/scripts/search.js")
+  script(src="/scripts/sets.js")
+  title Pokemon Card Database 
+  link(rel="icon", href="/images/master_ball_icon.svg" type="image/svg+xml", sizes="any")
+  link(rel="stylesheet", href="/styles/sets.css", type="text/css")
+  link(rel="stylesheet", href="/styles/header.css", type="text/css")
+ body
+  include ./partials/header.pug
+  div#main
+   table#set-table 
+    caption Please Choose a Set
+    thead
+     tr
+      th Id
+      th Series 
+      th Name 
+      th Total Cards 
+      th Logo 
+    tbody
+     each set in data.sets
+       tr.set-row
+        td #{set.id}
+        td #{set.series} 
+        td #{set.name}
+        td #{set.total_cards}
+        td
+         img(src=`${set.set_logo}`)
+       

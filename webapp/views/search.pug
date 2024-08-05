@@ -10,7 +10,12 @@ html
 		include ./partials/header.pug
 		div#main
 			if searchResults.length > 0
-				h2#results-label Search Results
+				if setInfo
+					img#set-image(src=`${setInfo.logo}`, alt=setInfo.name)
+					div#set-image-label
+						em Set - (#{setInfo.series}) #{setInfo.name}
+				else
+					h1#results-label Search Results
 				div#results-outer
 					each result in searchResults
 						div(class="search-result")
