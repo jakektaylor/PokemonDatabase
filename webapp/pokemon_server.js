@@ -1,6 +1,8 @@
+'use strict';
+import { timSort, PokemonComparator } from './sort.mjs';
 //Require the needed modules.
-const express = require('express');
-const sqlite3 = require('sqlite3');
+import express from "express";
+import sqlite3 from "sqlite3";
 
 const app = express();
 app.set('view engine', 'pug');
@@ -31,7 +33,7 @@ function init(){
     app.get("/search", queryDatabase);
     app.get("/cards/:set?", showSet); 
     app.get("/cards/:set/:number", showCard);
-    app.get("/pokemon", showPokemon)
+    app.get("/pokemon", showPokemon);
     app.listen(3000);
     console.log("Server listening at http://localhost:3000");
 }
@@ -44,11 +46,11 @@ function getHomePage(req, res, next){
     "The website was created by me, Jake Taylor.";
     res.setHeader("Content-Type", "text/html");
     res.status(200);
-    res.render('search', {searchOptions:searchOptions, searchResults:[], message:message, set:null});
+    res.render('search', {data: {searchOptions:searchOptions, searchResults:[], message:message, set:null}});
     next();
 }
 
-/*This function handles all queries to the database made in the search bar. It sends back JSON data for cards
+/*This function handles all queries to the database made in the search bar. It sends back HTML for cards
 and moves depending on the search type. The HTML for the results is generated on the client side using this data.*/
 function queryDatabase(req, res, next){
     let requestType = Number(req.query.type);
@@ -140,14 +142,11 @@ function queryDatabase(req, res, next){
         //REQUEST TYPE 4: In this case the user is searching for a card based on a move that is on it. NOTE: Not providing a requestValue will
         //not return all cards because not all cards have attacks.
         else if(requestType === 4){
-            db.all("SELECT A.card_number, A.pokemon_name, A.set_id, sets.series AS set_series, sets.name as set_name FROM sets INNER JOIN " +
-            "(SELECT DISTINCT cards.number as card_number, cards.pokemon_name, cards.set_id FROM cards INNER JOIN card_attacks WHERE " +
-            "cards.number = card_attacks.card_number AND cards.set_id = card_attacks.set_id AND card_attacks.attack_name LIKE ?) AS A ON " +
-            "A.set_id = sets.id;", [requestValue], (err, rows)=>{
+            db.all("", [requestValue], (err, rows)=>{
                 if(err){
                     reject(err);
                 }
-                console.log(rows);
+                
                 //Formulate the search results.
                 rows.forEach((row)=>{
                     searchResults.push({text:`${row.pokemon_name} (Series: ${row.set_series}, Set: ${row.set_name})`, url:`/cards/${row.set_id}/${row.card_number}`});
@@ -155,12 +154,12 @@ function queryDatabase(req, res, next){
                 resolve(searchResults);
             });
         }
-    }).then((searchResults)=> {
+    }).then((searchResults)=> new Promise((resolve, reject) => {
         res.setHeader("Content-Type", "text/html");
         res.status(200);
-        res.render('search', {searchOptions:searchOptions, searchResults:searchResults, set:null});
+        res.render('search', {"data": {searchOptions:searchOptions, searchResults:searchResults, message:null, set:null}});
         next();
-    }).catch((err)=>{
+    })).catch((err)=>{
         res.status(500);
         res.send(`SQLite Error: ${err.message}`);
         next(); 
@@ -168,11 +167,11 @@ function queryDatabase(req, res, next){
 }
 
 /*Purpose: This function is responsible for displaying a card. The information on the card includes:
-    1. name                 5. moves
-    2. set_name             6. first generation appeared in
-    3. rarity               7. Pokedex number
-    4. HP                   8. Pokemon type
-
+    1. name                 5. at
+    2. type(s)              6. first generation appeared in
+    3. set series           7. Pokedex number
+    4. set name             8. Pokemon type
+    5. 
 */
 function showCard(req, res, next){
     let set_id = req.params.set;
@@ -214,48 +213,48 @@ function showCard(req, res, next){
 
             //Get the different type(s) of the card and the Image icon for each type.
             let types = [];
-            rows.forEach((row)=>{;
+            rows.forEach((row)=>{
                 types.push({"Name": row.type_name, "Image": row.image_url});
             });
 
             cardData["Types"] = types;
             resolve(cardData);
         });
-    })).then((cardData)=>{
-        //Get the move data for the card.
-        let moveQuery = "SELECT * FROM card_attacks INNER JOIN attacks on card_attacks.attack_name = attacks.name WHERE " +
-        "card_attacks.card_number = ? AND card_attacks.set_id = ?;"
+    })).then((cardData)=> new Promise ((resolve, reject) => {
+        //Get the attack data for the card.
+        let moveQuery = "SELECT * FROM attacks WHERE card_number=? AND set_id=?;";
         db.all(moveQuery, [pokemon_number, set_id], (err, rows) => {
             if(err) throw err;
             let attackData = [];                                  //Move object containing the move information.
             //Determine the cost of the attack.
             let costs = {}
             rows.forEach((row)=>{
-                costs[row["name"]] = [];
+                let costsKey = `${row.set_id}-${row.card_number}-${row.name}`;              //The key to used to access the cost.
+                costs[costsKey] = [];
                 for(let key in row) {
                     if(key.substring(key.length-4, key.length) === "cost" && row[key] > 0) {
-                        //Add the cost type to the array once for each of the amount that is required.
+                        //Add the cost type name to the array once for each of the amount that is required.
                         for(let i=0;i<row[key];i++){
-                             costs[row["name"]].unshift(key.substring(0, key.length-5));
+                             costs[costsKey].unshift(key.substring(0, key.length-5));
                         }
                     }
                 }
-            });
-            rows.forEach((row) => {
                 //If the attack has no associated damage value, set the damage value to 0.
                 if(row.damage.length === 0) {
-                    attackData.push({"name": row.attack_name, "text": row.description, "cost": costs[row.attack_name], "damage": 0});
+                    attackData.push({"name": row.name, "text": row.description, 
+                    "cost": costs[costsKey], "damage": 0});
                 } else {
-                    attackData.push({"name": row.attack_name, "text": row.description, "cost": costs[row.attack_name], "damage": row.damage});
+                    attackData.push({"name": row.name, "text": row.description, 
+                    "cost": costs[costsKey], "damage": row.damage});
                 }
             });
+            
             res.status(200);
             res.setHeader("Content-Type", "text/html");
-            res.render("card", data={"card":cardData, "attacks": attackData, "searchOptions":searchOptions});
+            res.render("card", {data: {"card":cardData, "attacks": attackData, "searchOptions":searchOptions}});
             next();
-        });
-
-    }).catch((err)=> {
+        })
+    })).catch((err)=> {
         console.log(`Error getting card data: ${err.message}`);
         res.status(404);
         res.send(err.message);
@@ -263,13 +262,14 @@ function showCard(req, res, next){
     });
 }
 
-/*This function is responsible for showing all of the cards */
+/*This function is responsible for showing all of the cards in a set if the set name is provided in the request. 
+Otherwise, we display a table containing all sets and allow the user to choose one.*/
 function showSet(req, res, next) {
     //List of all set ids.
     const SETS = ["base1", "base2", "bw1", "bw9","dp1", "dp7", "ex1", "ex6","ex9","neo1","neo2","pl4","sm1","sm8","sv1","sv4","swsh1","swsh10","xy1","xy6"];
 
     //If the request parameter is not a valid set id, we display all sets and allow the user to choose one. Otherwise, we display all cards 
-    //in the set.
+    //in the requested set.
     let param = req.params.set;
     if(!param || !SETS.includes(param)) {
         new Promise((resolve, reject)=>{
@@ -284,12 +284,12 @@ function showSet(req, res, next) {
                     resolve(setResults);
                 }
             });
-        }).then((setResults)=>{
+        }).then((setResults)=> new Promise((resolve, reject)=>{
             res.status(200);
             res.setHeader("Content-Type", "text/html");
-            res.render("sets", data={sets: setResults, searchOptions: searchOptions});
+            res.render("sets", {data:{sets: setResults, searchOptions: searchOptions}});
             next();
-        }).catch((err)=>{
+        })).catch((err)=>{
             console.log(`Error getting set data: ${err.message}`);
             res.status(404);
             res.send(err.message);
@@ -299,7 +299,9 @@ function showSet(req, res, next) {
         param = param.toLowerCase().concat("%");
         //Handle similarly to how we would if the user searched for the set in the search bar,
         new Promise((resolve, reject) => {
-            db.all("SELECT cards.number as card_number, cards.pokemon_name, cards.set_id, sets.series AS set_series, sets.name AS set_name, sets.total_cards, sets.set_logo FROM cards INNER JOIN sets ON cards.set_id = sets.id WHERE sets.id LIKE ?;", [param], (err, rows)=>{
+            db.all("SELECT cards.number as card_number, cards.pokemon_name, cards.set_id, sets.series AS set_series, " +
+                "sets.name AS set_name, sets.total_cards, sets.set_logo FROM cards INNER JOIN sets ON cards.set_id = sets.id WHERE sets.id " +
+                " LIKE ?;", [param], (err, rows)=>{
             if(err) throw err;
             else {
                 let searchResults = [];
@@ -316,20 +318,18 @@ function showSet(req, res, next) {
                     }
                 });
                 
-                //Need to add both to an object as passing two arguments to then will result in the second beong used for reject().
-                let result = {search: searchResults, set: setInfo};
+                //Need to add both to an object as passing two arguments to then will result in the second being used for reject().
+                let result = {searchResults: searchResults, set: setInfo, searchOptions: searchOptions, message:null};
                 
                 resolve(result);
             }
         }
-        )}).then((result) => {
-            let searchResults = result["search"];
-            let setInfo = result["set"];
+        )}).then((result) => new Promise((resolve, reject)=>{
             res.setHeader("Content-Type", "text/html");
             res.status(200);
-            res.render('search', {searchOptions:searchOptions, "searchResults":searchResults, setInfo: setInfo});
+            res.render('search', {data:result});
             next();
-        }).catch((err)=>{
+        })).catch((err)=>{
             res.status(500);
             res.send(`SQLite Error: ${err.message}`);
             next(); 
@@ -337,6 +337,54 @@ function showSet(req, res, next) {
     }
 }
 
-function showPokemon() {
-    
-}
+/*The purpsose of this function is to display all of the Pokemon in the database.
+TODO: Table should be updated to allow sorting by the different columns.*/
+function showPokemon(req, res, next) {
+    //Find all Pokemon and their types.
+    new Promise((resolve, reject)=>{
+        db.all("SELECT pokemon.name, pokemon_types.pokemon_type AS type FROM pokemon INNER JOIN pokemon_types ON " +
+            "pokemon.name = pokemon_types.pokemon_name ORDER BY name;", [], (err, rows)=>{
+                if(err) throw err;
+                else {
+                    let pokemonResults = [];
+                    rows.forEach((row)=>{
+                        /*If the Pokemon has already been added but we are now adding a new type, do not push a new
+                        record to results. We can simply check the previous record since they are being added in 
+                        alphabetical order to see if the Pokemon has already been added.*/
+                        if(pokemonResults.length > 0 && pokemonResults[pokemonResults.length - 1]["name"] == row.name) 
+                            pokemonResults[pokemonResults.length - 1]["types"].push(row.type);
+                        else pokemonResults.push({"name": row.name, "types": [row.type], "appearsIn":[]});
+                    });
+                    resolve(pokemonResults);
+                }
+            });
+        //Display the sets the Pokemon appears in (i.e. the sets it has cards in)
+    }).then((pokemonResults) => new Promise((resolve, reject) => {
+        let setQuery = "SELECT cards.pokemon_name, sets.series AS set_series, sets.name AS set_name FROM cards INNER JOIN " + 
+        "sets ON cards.set_id = sets.id ORDER BY cards.pokemon_name";
+        db.all(setQuery, [], (err, rows)=>{
+            if(err) throw(err);
+            else {
+                let i = 0;                      //The current index we are at in 'rows'   .  
+                //Add the set info for each Pokemon to the 'pokemonResults' object.
+                for(let pokemon of pokemonResults) {
+                    while(rows[i] && rows[i].pokemon_name === pokemon["name"]) pokemon["appearsIn"].push(rows[i++].set_name);
+                }
+
+                //By default,order the results ny type, where the types are in ascensing alphabetical order.
+                let comparator = new PokemonComparator("types", new Intl.Collator("en-CA"));
+                timSort(pokemonResults, pokemonResults.length, comparator);
+                resolve(pokemonResults);
+            }
+        })
+    })).then((pokemonResults) => new Promise((resolve, reject) => {
+        res.setHeader("Content-Type", "text/html");
+        res.status(200);
+        res.render('pokemon', {data: {pokemon: pokemonResults, searchOptions:searchOptions}});
+        next();
+    })).catch((err)=>{
+        res.status(500);
+        res.send(`SQLite Error: ${err.message}`);
+        next(); 
+    });
+}   

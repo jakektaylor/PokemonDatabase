@@ -14,8 +14,8 @@ header(id="nav-bar")
 		div#search-options-div
 			label(for="select-option", id="select-option-label") Choose search type:
 			select(name="select-option", id="select-option")
-				if searchOptions.length > 0
-					each searchOption, index in searchOptions
+				if data.searchOptions.length > 0
+					each searchOption, index in data.searchOptions
 						option(id="option-"+index, class="search-option") #{searchOption}
 		input(id="search-box", class="text-field", placeholder="Search...")
 		button(id="search-button") Search

@@ -27,7 +27,7 @@ def make_request(url: str, param: str) -> dict:
    elif status == 404:
     print("Not Found: The requested resource doesn't exist.")
    elif status == 429:
-    print(f"Too Many Requests: 	The rate limit of 20000 requests/day has been exceeded.\nCurrent ID: {id}.\nExiting...")
+    print(f"Too Many Requests: The rate limit of 20000 requests/day has been exceeded.\nCurrent ID: {id}.\nExiting...")
     exit(-1)                     #Exit since this error is critical
    elif status in [500, 502, 503, 504]:
     print("Server Error")
@@ -39,7 +39,7 @@ def make_request(url: str, param: str) -> dict:
    #Converts the JSON into a dictionary.
    return json.loads(response.content)
 
-'''Purpose: This method is responsible for creating the 7 tables a part of the sqlite database that is 
+'''Purpose: This method is responsible for creating the 6 tables a part of the sqlite database that is 
    used to store the required data for the application.
 '''
 def create_tables(con: sqlite3.Connection) -> None:
@@ -52,16 +52,15 @@ def create_tables(con: sqlite3.Connection) -> None:
  cursor.execute("DROP TABLE IF EXISTS pokemon_types;")
  cursor.execute("DROP TABLE IF EXISTS cards;")
  cursor.execute("DROP TABLE IF EXISTS attacks;")
- cursor.execute("DROP TABLE IF EXISTS card_attacks;")
 
  #Create the 'sets' table.
  cursor.execute('''
 		CREATE TABLE sets(
    id TEXT PRIMARY KEY,
-			series TEXT NOT NULL,		    --ex. Base, Sword and Shield etc.
-			name TEXT NOT NULL,				    --The particular set within the series.
-			total_cards INTEGER NOT NULL,    --Modified it to be only the number of cards added to the database from the set.
-			set_logo TEXT NOT NULL	    --URL of the set logo image
+			series TEXT NOT NULL,		        --ex. Base, Sword and Shield etc.
+			name TEXT NOT NULL,				      --The particular set within the series.
+			total_cards INTEGER NOT NULL,   --Modified it to be only the number of cards added to the database from the set.
+			set_logo TEXT NOT NULL	        --URL of the set logo image
   ); 
 		''')
   
@@ -108,10 +107,13 @@ def create_tables(con: sqlite3.Connection) -> None:
   );          
  ''')
 
- #Create the 'attacks' table.
+ #Create the 'attacks' table. Attacks with the same name have different costs depending on the card. Therefore, need
+ #to specify the associated card.
  cursor.execute('''
   CREATE TABLE attacks(
-   name TEXT PRIMARY KEY,
+   name TEXT NOT NULL,
+   card_number INTEGER NOT NULL,
+   set_id TEXT NOT NULL,
    description TEXT,
    damage TEXT,             --Text because can have damage values such as "10x"
    colorless_cost INTEGER,  --The cost of the attack (can be multiple types, many columns will be NULL)
@@ -124,20 +126,9 @@ def create_tables(con: sqlite3.Connection) -> None:
    lightning_cost INTEGER,
    metal_cost INTEGER,
    psychic_cost INTEGER,
-   water_cost INTEGER
-  );
- ''')
-
- #Create the 'card_attacks' table.
- cursor.execute('''
-  CREATE TABLE card_attacks(
-   card_number TEXT NOT NULL,      --Card number as assigned by me.
-   set_id TEXT NOT NULL,
-   attack_name TEXT NOT NULL,
-   PRIMARY KEY (set_id, card_number, attack_name),
-   FOREIGN KEY (card_number) REFERENCES cards(number) ON DELETE CASCADE,
-   FOREIGN KEY (set_id) REFERENCES sets(id) ON DELETE CASCADE,
-   FOREIGN KEY (attack_name) REFERENCES attacks(name) ON DELETE CASCADE
+   water_cost INTEGER,
+   PRIMARY KEY (name, card_number, set_id),
+   FOREIGN KEY (card_number, set_id) REFERENCES cards(number, set_id) ON DELETE CASCADE
   );
  ''')
  
@@ -175,7 +166,7 @@ def store_types_data(con: sqlite3.Connection) -> None:
 
 ''' Purpose: This method is responsible for storing all of the data for all of the Pokemon cards
     (not energy cards etc.) in a given set. This will end up adding data to the 'pokemon', 'pokemon_types',
-    'cards', 'attacks' and 'card_attacks' tables in the sqlite database.
+    'cards' and 'attacks' tables in the sqlite database.
     Parameters: con: Connection to the sqlite3 database
                 set_id: Id of the set to which the card belongs
                 card_number: Number of the card in the set (actual)
@@ -235,11 +226,11 @@ def store_card_data(con:sqlite3.Connection, set_id: str, card_number: int, db_nu
  except KeyError:
   card_table_data["image"] = "/images/default_image.png"
 
-
+ 
  cursor.execute("INSERT INTO cards(number,set_id,pokemon_name,hp,level,rarity,image_url) VALUES (?,?,?,?,?,?,?)", 
  (card_table_data["number"], card_table_data["set_id"], card_table_data["name"], card_table_data["hp"], 
  card_table_data["level"], card_table_data["rarity"], card_table_data["image"]))
-
+ 
  #Store the data related to the card's attacks. It adds data to the 'attacks' and 'card_attacks' tables. 
  #Note: Not all Pokemon cards have attacks.
  try:
@@ -252,7 +243,7 @@ def store_card_data(con:sqlite3.Connection, set_id: str, card_number: int, db_nu
  return 0 
 
 ''' Purpose: Helper method for the 'store_card_data" method used to store the data related to the attacks 
-    that appear on a given Pokemon card. This means adding data to the 'attacks' and 'card_attacks' tables in the DB.
+    that appear on a given Pokemon card. This means adding data to the 'attacks' and table in the DB.
     Parameters: -cursor: cursor in the Pokemon database
                 -db_number: The number of the Pokemon in the set as assigned by me.
                 -set_id: id of the set to which the card belongs
@@ -265,19 +256,15 @@ def store_attack_data(cursor: sqlite3.Connection.cursor, db_number: int, set_id:
   types = [type[0] for type in types]
   attack_cost = {key: attack["cost"].count(key) for key in types}
 
-  #Store the information for the attack in the 'attacks' table. If we have already added the attack from another card, then simply don't add it again.
+  #Store the information for the attack in the 'attacks' table.
   try: 
-   cursor.execute("INSERT INTO attacks(name, description, damage, colorless_cost, darkness_cost,dragon_cost,fairy_cost,fighting_cost," +
-   "fire_cost,grass_cost,lightning_cost,metal_cost,psychic_cost,water_cost) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);",
-   (attack["name"], attack["text"], attack["damage"], attack_cost["Colorless"], attack_cost["Darkness"], attack_cost["Dragon"],
-    attack_cost["Fairy"], attack_cost["Fighting"], attack_cost["Fire"], attack_cost["Grass"], attack_cost["Lightning"], attack_cost["Metal"],
-    attack_cost["Psychic"], attack_cost["Water"]))
+   cursor.execute("INSERT INTO attacks(name,card_number,set_id,description,damage,colorless_cost,darkness_cost,dragon_cost,fairy_cost," +
+                  "fighting_cost,fire_cost,grass_cost,lightning_cost,metal_cost,psychic_cost,water_cost) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);",
+   (attack["name"], db_number, set_id, attack["text"], attack["damage"], attack_cost["Colorless"], attack_cost["Darkness"], 
+    attack_cost["Dragon"], attack_cost["Fairy"], attack_cost["Fighting"], attack_cost["Fire"], attack_cost["Grass"], attack_cost["Lightning"],
+    attack_cost["Metal"], attack_cost["Psychic"], attack_cost["Water"]))
   except sqlite3.IntegrityError:
    pass
-
-  #Store the information for what card the attack appears on in the 'card_attacks' table.
-  cursor.execute("INSERT INTO card_attacks(card_number, set_id, attack_name) VALUES (?,?,?);", (db_number, set_id, attack["name"]))
-
 
 #Main method.
 def main():
@@ -288,6 +275,7 @@ def main():
 	#Create a new database.
  try:
   con = sqlite3.connect("pokemon.db")
+  
   create_tables(con)
 
   store_types_data(con)       #Populate the 'types' table.
@@ -295,7 +283,7 @@ def main():
   #Store the 'sets' table.
   for set in sets:
    store_set_data(con, set)
-
+  
   #Store the cards in each set.
   for set in sets:
    #Determine the number of cards in the provided set.

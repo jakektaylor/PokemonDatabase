@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Jakob Taylor (101147594) final project for COMP3005.",
   "main": "pokemon_server.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

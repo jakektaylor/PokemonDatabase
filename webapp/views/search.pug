@@ -9,19 +9,19 @@ html
 	body
 		include ./partials/header.pug
 		div#main
-			if searchResults.length > 0
-				if setInfo
-					img#set-image(src=`${setInfo.logo}`, alt=setInfo.name)
+			if data.searchResults.length > 0
+				if data.set
+					img#set-image(src=`${data.set.logo}`, alt=data.set.name)
 					div#set-image-label
-						em Set - (#{setInfo.series}) #{setInfo.name}
+						em Set - (#{data.set.series}) #{data.set.name}
 				else
 					h1#results-label Search Results
 				div#results-outer
-					each result in searchResults
+					each result in data.searchResults
 						div(class="search-result")
 							a(href=result.url) #{result.text}
 			else
-				div#welcome-message #{message}
+				div#welcome-message #{data.message}
 					ul#welcome-list The following search options are available on this website:
 						li By the name of the Pokémon that appears on the card 
 						li By the type of the Pokémon that appears on the card 
