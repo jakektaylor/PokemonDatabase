@@ -49,14 +49,14 @@ def create_tables(con: sqlite3.Connection) -> None:
  cursor.execute("DROP TABLE IF EXISTS sets;")
  cursor.execute("DROP TABLE IF EXISTS pokemon;")
  cursor.execute("DROP TABLE IF EXISTS types;")
- cursor.execute("DROP TABLE IF EXISTS pokemon_types;")
+ cursor.execute("DROP TABLE IF EXISTS card_types;")
  cursor.execute("DROP TABLE IF EXISTS cards;")
  cursor.execute("DROP TABLE IF EXISTS attacks;")
 
  #Create the 'sets' table.
  cursor.execute('''
 		CREATE TABLE sets(
-   id TEXT PRIMARY KEY,
+      id TEXT PRIMARY KEY,
 			series TEXT NOT NULL,		        --ex. Base, Sword and Shield etc.
 			name TEXT NOT NULL,				      --The particular set within the series.
 			total_cards INTEGER NOT NULL,   --Modified it to be only the number of cards added to the database from the set.
@@ -79,19 +79,8 @@ def create_tables(con: sqlite3.Connection) -> None:
   );
  ''')
 
- #Create the 'pokemon_types' table.
- cursor.execute('''
-  CREATE TABLE pokemon_types(
-   pokemon_name TEXT NOT NULL,
-   pokemon_type TEXT NOT NULL, 
-   PRIMARY KEY (pokemon_name, pokemon_type),
-   FOREIGN KEY (pokemon_name) REFERENCES pokemon(name) ON DELETE CASCADE,
-   FOREIGN KEY (pokemon_type) REFERENCES types(name) ON DELETE CASCADE
-  );          
- ''')
-
  #Create the 'cards' table. Need to assign an ID to each card since the same pokemon can have more than 1 
- #card in the same set. Ex. Clefable in base2 (Jungle) has a regular and a holo version.
+ #card in the same set. Ex. Clefable in base2 (Jungle) has a regular and a holo version. 
  cursor.execute('''
   CREATE TABLE cards(
    number INTEGER,                --The number of the card in the set as assigned by me. 
@@ -107,8 +96,22 @@ def create_tables(con: sqlite3.Connection) -> None:
   );          
  ''')
 
+ #Create the 'card_types' table.
+ #TODO: Need to figure out why there are more cards than card_types NOTE: Each card can have multiple types.
+ cursor.execute('''
+  CREATE TABLE card_types(
+   card_set_id TEXT NOT NULL,
+   card_number INTEGER NOT NULL,
+   card_type TEXT NOT NULL,
+   PRIMARY KEY (card_set_id, card_number, card_type),
+   FOREIGN KEY (card_set_id, card_number) REFERENCES cards(set_id, number) ON DELETE CASCADE,
+   FOREIGN KEY (card_type) REFERENCES types(name) ON DELETE CASCADE
+  );          
+ ''')
+
  #Create the 'attacks' table. Attacks with the same name have different costs depending on the card. Therefore, need
- #to specify the associated card.
+ #to specify the associated card. See Yawn in DB which confirms descriptions vary too. See Water Gun to see that damage
+ #values also vary.
  cursor.execute('''
   CREATE TABLE attacks(
    name TEXT NOT NULL,
@@ -165,7 +168,7 @@ def store_types_data(con: sqlite3.Connection) -> None:
  cursor.close()
 
 ''' Purpose: This method is responsible for storing all of the data for all of the Pokemon cards
-    (not energy cards etc.) in a given set. This will end up adding data to the 'pokemon', 'pokemon_types',
+    (not energy cards etc.) in a given set. This will end up adding data to the 'pokemon', 'card_types',
     'cards' and 'attacks' tables in the sqlite database.
     Parameters: con: Connection to the sqlite3 database
                 set_id: Id of the set to which the card belongs
@@ -173,7 +176,6 @@ def store_types_data(con: sqlite3.Connection) -> None:
                 db_number: The number of the card as it has been added to the database. (number field in
                 'cards' table)
     Returns: 0 if a card is added and -1 if not.
-                
 '''
 def store_card_data(con:sqlite3.Connection, set_id: str, card_number: int, db_number: int) -> int: 
 
@@ -186,12 +188,11 @@ def store_card_data(con:sqlite3.Connection, set_id: str, card_number: int, db_nu
  if(card_data["supertype"] != "Pokémon"): return -1
 
  #Add the name of the Pokémon to the 'pokemon' table and the pokemon name and its type(s) to the 
- #'pokemon_types' table. If we have already added this info. for this Pokemon from another card, simply
+ #'card_types' table. If we have already added this info. for this Pokemon from another card, simply
  #move on.
+ 
  try:
   cursor.execute("INSERT INTO pokemon(name) VALUES (?);", (card_data["name"], ))
-  for type in card_data["types"]:
-   cursor.execute("INSERT INTO pokemon_types(pokemon_name, pokemon_type) VALUES (?,?);", (card_data["name"], type))
  except sqlite3.IntegrityError as e:
   pass
  
@@ -201,6 +202,12 @@ def store_card_data(con:sqlite3.Connection, set_id: str, card_number: int, db_nu
  card_table_data["set_id"] = card_data["set"]["id"]
  card_table_data["name"] = card_data["name"]
 
+ #Add the type data for the given card.
+ for type in card_data["types"]:
+   cursor.execute("INSERT INTO card_types(card_set_id, card_number, card_type) VALUES (?,?,?);", (card_table_data["set_id"], card_table_data["number"],
+   type))
+
+ 
  #Check if the other values are given, if not set them to None (which will be NULL in the field for the record)
  try:
   card_table_data["hp"] = card_data["hp"]
@@ -238,6 +245,7 @@ def store_card_data(con:sqlite3.Connection, set_id: str, card_number: int, db_nu
   store_attack_data(cursor, db_number, card_table_data["set_id"], attack_data)
  except KeyError:
   pass
+ 
  con.commit()
  cursor.close()
  return 0 
@@ -282,7 +290,7 @@ def main():
 
   #Store the 'sets' table.
   for set in sets:
-   store_set_data(con, set)
+    store_set_data(con, set)
   
   #Store the cards in each set.
   for set in sets:
@@ -299,7 +307,7 @@ def main():
    for i in range(1, total_cards+1):
     try:
       rc = store_card_data(con, set, i, curr_card)
-      if rc == 0: curr_card+=1
+      if rc == 0: curr_card += 1
     except ConnectionError as card_error:
      print(f"{card_error}")
      print("Continuing...")

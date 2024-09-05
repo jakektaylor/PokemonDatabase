@@ -12,14 +12,14 @@
 #outer-table {
  border-collapse: collapse;
  margin: 2rem 0;
- font-size: 0.9rem;
+ font-size: 1.2rem;
  min-width: 40rem;
- box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+ box-shadow: 0 0 1.2rem 0.5rem rgba(0, 0, 0, 0.15);
 }
 
 #outer-table caption {
  font-family: "Freeman", sans-serif;
- font-size: 5vh;
+ font-size: 2.8rem;
  margin-bottom: 2vh;
  color: rgb(192, 225, 255);
 }
@@ -30,7 +30,26 @@
  text-align: center;
 }
 
-#outer-table th,
+#outer-table thead span {
+ display: inline-block;
+ transform: rotate(90deg);
+ color:rgb(255, 255, 255);
+ font-size: 0.8rem;
+}
+
+#outer-table th {
+ padding: 1vh 2vw;
+ text-align: center;
+ font-family: "Roboto Mono", sans-serif;
+ font-weight: 500;
+ font-size: 1rem;
+}
+
+/*Ensures that the table can only be sorted by 'Name'*/
+#outer-table th:first-of-type {
+ cursor: pointer;
+}
+
 #outer-table td {
     padding: 1vh 2vw;
     text-align: center;
@@ -38,42 +57,34 @@
     font-weight: 500;
 }
 
-#outer-table > tr {
- cursor: pointer;
+#outer-table tbody > tr {
+ background-color: rgb(85, 157, 239);
+ transition: all 1s cubic-bezier(0.33, 1, 0.68, 1) 0s;
 }
 
-#outer-table tbody tr {
- color:black;
- transition: all 2s cubic-bezier(0.33, 1, 0.68, 1) 0s;
- padding: 1vh 0;
+#outer-table tbody > tr:hover {
+ background-color: rgb(51, 119, 197);
 }
 
-/*Change the colours of the rows depending on the class to which they belong.*/
-#outer-table tbody .Colorless {
-    background-color: rgb(200, 200, 200);
-} 
-
+/*subtable styling*/
 .subtable {
  min-width: 100%;
- background-color: transparent;
-};
-
-.subtable tbody {
- background-color: transparent;
- transition: none;
+ background-color: rgba(0, 0, 0, 0.15);
+ border-collapse: separate;
+ box-shadow: 3px 3px 5px rgb(199, 22, 199);
 }
 
-.subtable tbody td:nth-of-type(even) {
- background-color: transparent;
- transition: none;
+.subtable td {
+ background-color: rgb(96, 95, 196);
 }
 
-.subtable tbody td:nth-of-type(odd) {
- background-color: transparent;
- transition: none;
+/*Link styling*/
+tbody a {
+ text-decoration: underline 0.15rem rgba(0, 255, 255, 0);
+ color: aqua;
+ transition: text-decoration-color 600ms; 
 }
 
-.subtable tbody td {
- background-color: transparent;
- transition: none;
+tbody a:hover {
+ text-decoration-color: rgba(0, 255, 255, 1);
 }

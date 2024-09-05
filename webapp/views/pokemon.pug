@@ -15,19 +15,16 @@ html
     thead
      tr
       th Name
-      th Type(s)
+        span &#x27A4;
       th Appears In (Sets)
     tbody
       each pokemon in data.pokemon
-        tr(class=pokemon.types[0])
-          td #{pokemon.name}
+        tr(class="row")
+          td
+            a(href=`/search?type=0&body=${pokemon.name}`) #{pokemon.name}
           td
             table.subtable
-              each type in pokemon.types
+              each card in pokemon.appearsOn
                 tr
-                  td #{type}
-          td
-            table.subtable
-              each set in pokemon.appearsIn
-                tr
-                  td #{set}
+                  td
+                    a(href=card.url) #{card.set}

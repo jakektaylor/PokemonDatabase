@@ -63,7 +63,7 @@ function queryDatabase(req, res, next){
                                                                                //value when LIKE is used
     }
     //Otherwise, convert to a number.
-    else if (requestType === 2) {
+    else {
         requestValue = Number(requestValue);
         if(isNaN(requestValue)) requestValue = 0;
     }
@@ -90,8 +90,9 @@ function queryDatabase(req, res, next){
         else if(requestType === 1){
 
             db.all("SELECT A.card_number, A.pokemon_name, A.set_id, sets.name AS set_name, sets.series AS set_series FROM sets INNER JOIN " +
-                "(SELECT cards.number as card_number, cards.pokemon_name, cards.set_id FROM cards INNER JOIN pokemon_types ON " +
-                "pokemon_types.pokemon_name = cards.pokemon_name WHERE lower(pokemon_type) LIKE ?) AS A ON A.set_id = sets.id;", [requestValue], (err, rows)=>{
+                "(SELECT cards.number as card_number, cards.pokemon_name, cards.set_id FROM cards INNER JOIN card_types ON " +
+                "cards.number = card_types.card_number AND cards.set_id = card_types.card_set_id WHERE lower(card_types.card_type) LIKE ?) AS A " +
+                "ON A.set_id = sets.id;", [requestValue], (err, rows)=>{
                 
                 if(err){
                     reject(err);
@@ -142,7 +143,10 @@ function queryDatabase(req, res, next){
         //REQUEST TYPE 4: In this case the user is searching for a card based on a move that is on it. NOTE: Not providing a requestValue will
         //not return all cards because not all cards have attacks.
         else if(requestType === 4){
-            db.all("", [requestValue], (err, rows)=>{
+            db.all("SELECT sets.series as set_series, sets.name as set_name, A.set_id, A.card_number, A.pokemon_name FROM sets " +
+                "INNER JOIN (SELECT cards.pokemon_name, attacks.card_number, attacks.set_id FROM attacks INNER JOIN cards ON " +
+                "attacks.card_number = cards.number AND attacks.set_id = cards.set_id WHERE lower(attacks.name) LIKE ?) A ON " +
+                "A.set_id = sets.id;", [requestValue], (err, rows)=>{
                 if(err){
                     reject(err);
                 }
@@ -167,11 +171,10 @@ function queryDatabase(req, res, next){
 }
 
 /*Purpose: This function is responsible for displaying a card. The information on the card includes:
-    1. name                 5. at
-    2. type(s)              6. first generation appeared in
-    3. set series           7. Pokedex number
-    4. set name             8. Pokemon type
-    5. 
+    1. name                 5. HP
+    2. type(s)              6. Level (may be undefined for newer cards)
+    3. set series           7. Rarity
+    4. set name             8. Attacks
 */
 function showCard(req, res, next){
     let set_id = req.params.set;
@@ -205,9 +208,9 @@ function showCard(req, res, next){
     //Need to return new Promise here. Can use return statement instead of implicit return and will still work.
     .then((cardData) => new Promise((resolve, reject)=>{
         //Next, get the type info for the card.
-        let typeQuery = "SELECT pokemon_types.pokemon_name, types.name AS type_name, types.image_url FROM " + 
-        "pokemon_types INNER JOIN types ON pokemon_types.pokemon_type = types.name WHERE pokemon_name = ?;"
-        db.all(typeQuery, [cardData["Name"]], (err, rows)=> {
+        let typeQuery = "SELECT types.name AS type_name, types.image_url FROM card_types INNER JOIN types ON card_types.card_type = types.name " +
+        "WHERE card_types.card_number = ? AND card_types.card_set_id=?;"
+        db.all(typeQuery, [pokemon_number, set_id], (err, rows)=> {
             if(err) reject(err);
             
 
@@ -338,46 +341,31 @@ function showSet(req, res, next) {
 }
 
 /*The purpsose of this function is to display all of the Pokemon in the database.
-TODO: Table should be updated to allow sorting by the different columns.*/
+TODO: Table should be updated to allow sorting by the name and search.*/
 function showPokemon(req, res, next) {
     //Find all Pokemon and their types.
     new Promise((resolve, reject)=>{
-        db.all("SELECT pokemon.name, pokemon_types.pokemon_type AS type FROM pokemon INNER JOIN pokemon_types ON " +
-            "pokemon.name = pokemon_types.pokemon_name ORDER BY name;", [], (err, rows)=>{
+        db.all("SELECT cards.number, cards.set_id, cards.pokemon_name, sets.series AS set_series, sets.name as set_name FROM cards INNER JOIN sets " +
+            "ON cards.set_id = sets.id ORDER BY cards.pokemon_name;", [], (err, rows)=>{
                 if(err) throw err;
                 else {
                     let pokemonResults = [];
                     rows.forEach((row)=>{
-                        /*If the Pokemon has already been added but we are now adding a new type, do not push a new
+                        let set = `${row.set_series}-${row.set_name}`;
+                        let card_url = `/cards/${row.set_id}/${row.number}`;
+                        let info = {"set":set, "url": card_url};                            //Information for the card (Pokemon in the given set)
+                        /*If the Pokemon has already been added but we are now adding a new set, do not push a new
                         record to results. We can simply check the previous record since they are being added in 
                         alphabetical order to see if the Pokemon has already been added.*/
-                        if(pokemonResults.length > 0 && pokemonResults[pokemonResults.length - 1]["name"] == row.name) 
-                            pokemonResults[pokemonResults.length - 1]["types"].push(row.type);
-                        else pokemonResults.push({"name": row.name, "types": [row.type], "appearsIn":[]});
+                        if(pokemonResults.length > 0 && pokemonResults[pokemonResults.length - 1]["name"] == row.pokemon_name) 
+                            pokemonResults[pokemonResults.length - 1]["appearsOn"].push(info);
+                        else pokemonResults.push({"name": row.pokemon_name, "appearsOn":[info]});
                     });
                     resolve(pokemonResults);
                 }
             });
-        //Display the sets the Pokemon appears in (i.e. the sets it has cards in)
+    //Display the sets the Pokemon appears in (i.e. the sets it has cards in)
     }).then((pokemonResults) => new Promise((resolve, reject) => {
-        let setQuery = "SELECT cards.pokemon_name, sets.series AS set_series, sets.name AS set_name FROM cards INNER JOIN " + 
-        "sets ON cards.set_id = sets.id ORDER BY cards.pokemon_name";
-        db.all(setQuery, [], (err, rows)=>{
-            if(err) throw(err);
-            else {
-                let i = 0;                      //The current index we are at in 'rows'   .  
-                //Add the set info for each Pokemon to the 'pokemonResults' object.
-                for(let pokemon of pokemonResults) {
-                    while(rows[i] && rows[i].pokemon_name === pokemon["name"]) pokemon["appearsIn"].push(rows[i++].set_name);
-                }
-
-                //By default,order the results ny type, where the types are in ascensing alphabetical order.
-                let comparator = new PokemonComparator("types", new Intl.Collator("en-CA"));
-                timSort(pokemonResults, pokemonResults.length, comparator);
-                resolve(pokemonResults);
-            }
-        })
-    })).then((pokemonResults) => new Promise((resolve, reject) => {
         res.setHeader("Content-Type", "text/html");
         res.status(200);
         res.render('pokemon', {data: {pokemon: pokemonResults, searchOptions:searchOptions}});
