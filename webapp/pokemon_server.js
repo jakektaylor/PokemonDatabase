@@ -1,5 +1,4 @@
 'use strict';
-import { timSort, PokemonComparator } from './sort.mjs';
 //Require the needed modules.
 import express from "express";
 import sqlite3 from "sqlite3";

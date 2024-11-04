@@ -72,7 +72,7 @@ However, stat-table contains move-table.*/
     align-content: center;
     font-family: "Roboto Mono", sans-serif;
     font-weight: 400;
-    font-size: 1.5em;
+    font-size: 1.5rem;
     margin-bottom: 0.5vh;
 }
 
@@ -113,7 +113,7 @@ However, stat-table contains move-table.*/
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 3.5vh;
+    font-size: 2rem;
     font-weight: 500;
     cursor: pointer;
     color:#FFFFFF;

@@ -1,6 +1,6 @@
 html
 	head
-		script(src="/scripts/jquery-3.7.1.min.js")
+		script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js")
 		script(src="/scripts/search.js")
 		title Pokemon Card Database 
 		link(rel="icon", href="/images/master_ball_icon.svg" type="image/svg+xml", sizes="any")
@@ -12,10 +12,9 @@ html
 			if data.searchResults.length > 0
 				if data.set
 					img#set-image(src=`${data.set.logo}`, alt=data.set.name)
-					div#set-image-label
-						em Set - (#{data.set.series}) #{data.set.name}
+					h1.results-label Set - (#{data.set.series}) #{data.set.name}
 				else
-					h1#results-label Search Results
+					h1.results-label Search Results
 				div#results-outer
 					each result in data.searchResults
 						div(class="search-result")
