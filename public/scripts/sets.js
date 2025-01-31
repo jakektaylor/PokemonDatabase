@@ -6,5 +6,5 @@ $(document).ready(function() {
 function viewSet() {
  let rowData = $(this).children("td")[0];
  let setId = $(rowData).prop("textContent");
- window.location.replace(`http://localhost:3000/cards/${setId}`);
+ window.location.replace(`${window.location.origin}/cards/${setId}`);
 }

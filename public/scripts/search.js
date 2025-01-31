@@ -13,6 +13,5 @@ function search(){
     //Get the text that was entered by the user in the search box.
     let searchText = $("#search-box").val();
     $("#search-box").val("");
-
-    window.location.replace(`http://localhost:3000/search?type=${choice}&body=${searchText}`);
+    window.location.replace(`${window.location.origin}/search?type=${choice}&body=${searchText}`);
 }
