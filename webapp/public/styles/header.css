@@ -12,6 +12,21 @@ body {
     background-color:rgb(252, 119, 119);
 }
 
+#nav-bar {
+    background-color: rgb(255, 61, 61);
+    display: flex;
+    position: relative;
+    color: rgb(255, 255, 255);
+    font-family: "Freeman", sans-serif;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2%;
+    box-shadow: 0 2px 5px rgb(0, 0, 0);
+    width: 100%;
+    min-height: 10%;
+    margin-bottom: 3vh;
+}
+
 #title-div {
     display: inline-flex;
     flex-direction: row;
@@ -19,52 +34,37 @@ body {
 }
 
 #title-div > img {
-    width: 6rem;
-    height: 6rem;
+    width: 6vw;
+    height: 6vw;
 }
 
 #title {
     margin-left: 1rem;
-}
-
-#nav-bar {
-    background-color: rgb(255, 61, 61);
-    display: flex;
-    margin: 0rem 0rem 1.5rem 0rem;
-    font-family: "Freeman", sans-serif;
-    font-size: 1rem;
-    color: rgb(255, 255, 255);
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5% 2%;
-    box-shadow: 0rem 0.1rem 5px rgb(0, 0, 0);
+    font-size: clamp(1.8rem, 2vw, 3rem);
 }
 
 #links {
-    display: inline-flex;
+    max-width: 30%;
+    padding: 0% 2%;
 }
 
-
-#links ul {
+#links > ul {
     list-style-type: none;
     display: flex;
-    flex-direction: row;
-    justify-content: start;
-    align-items: center;
 }
 
-#links ul li {
-    display: inline-block;
+#links > ul > li {
+    margin-right: 2vw;
 }
 
 
 .link {
     color: rgb(108, 157, 235);
-    transition: all 1s ease 0s;
+    transition: color 1s linear 0s;
     text-decoration: none;
-    font-size: 1.25rem;
+    font-size: clamp(0.8rem, 1.3vw, 2rem);
     position:relative;
-    margin: 0 2rem;
+    display: block;
 }
 
 .link:hover {
@@ -107,7 +107,7 @@ body {
 #select-option {
     width:100%;
     height: 2rem;
-    font-size: 1rem;
+    font-size: clamp(0.8rem, 1.2vw, 2rem);
     font-family: "Open Sans", sans-serif;
     font-weight:400;
     text-align: left;
@@ -117,7 +117,7 @@ body {
 #search-box {
     width: 40%;
     height: 2rem;
-    font-size: 1rem;
+    font-size: clamp(0.8rem, 1.2vw, 2rem);
     font-family: "Open Sans", sans-serif;
     font-weight:400;
     border-radius: 0.5rem;
@@ -128,11 +128,19 @@ body {
 #search-button{
     width: auto;
     height: 2rem;
-    font-size: medium;
+    font-size: clamp(0.8rem, 1.4vw, 2rem);
     background-color: rgb(148, 198, 244);
     font-family: "Freeman", sans-serif;
     color: rgba(255, 255, 255, 1);
     border-radius: 0.8rem;
     border-style: none;
     padding: 0rem 1rem;
+}
+
+@media screen and (max-width: 760px) {
+    #nav-bar {
+        flex-direction: column;
+        justify-content: start;
+        align-items: center;
+    }
 }

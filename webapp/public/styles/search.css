@@ -21,6 +21,7 @@
     font-family: "Freeman", sans-serif;
     font-weight: 100;
     color: #ffffff;
+    font-size: clamp(0.4rem, 1.2vw, 2rem);
 }
 
 #welcome-list {
@@ -54,7 +55,7 @@
     text-align: center;
     font-family: "Freeman", sans-serif;
     margin-bottom: 1.5rem;
-    font-size: 2rem;
+    font-size: clamp(1rem, 2vw, 2rem);
     font-weight: 700;
     color:rgb(255, 255, 255);
 }
@@ -74,7 +75,7 @@
 
 .search-result {
     background-color: rgb(228, 41, 41);
-    width: 18%;
+    max-width: 18%;
     display: inline-block;
     margin: 2vh 0.5vw;
     text-decoration: underline;
@@ -89,7 +90,7 @@
 
 .search-result > a { 
     color: #ffffff;
-    font-size: 1rem;
+    font-size: clamp(0.4rem, 1.2vw, 2rem);
     text-decoration: none;
     font-family: "Freeman", sans-serif;
 }

@@ -10,8 +10,8 @@
 
 table {
  border-collapse: collapse;
- margin: 2vh 0;
- font-size: 0.9em;
+ margin: 2vh 2vw;
+ font-size: clamp(1rem, 1.2vw, 2rem);
  font-family: sans-serif;
  min-width: 400px;
  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
@@ -67,6 +67,6 @@ table tbody tr:last-of-type {
 }
 
 td > img {
- max-height: 4vh;
+ max-height: 2vw;
 }
 

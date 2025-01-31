@@ -25,6 +25,7 @@ let db = new sqlite3.Database('./pokemon.db', (err)=>{
 
 function init(){
     //EXPRESS SETUP
+
     app.use(express.json());
     app.use(express.static('public'));
 
@@ -157,9 +158,9 @@ function queryDatabase(req, res, next){
                 resolve(searchResults);
             });
         }
-    }).then((searchResults)=> new Promise((resolve, reject) => {
+    }).then((searchResults)=> new Promise(() => {
         res.setHeader("Content-Type", "text/html");
-        res.status(200);
+        res.status(200);    
         res.render('search', {"data": {searchOptions:searchOptions, searchResults:searchResults, message:null, set:null}});
         next();
     })).catch((err)=>{

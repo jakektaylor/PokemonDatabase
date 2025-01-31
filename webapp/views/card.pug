@@ -15,9 +15,8 @@ html
 					source(src=`/type_videos/${val["Name"]}.mp4` type="video/mp4")
 				- break
 			div#image-column
-				div
-					h2#card-image-name #{data.card["Name"]}
-					h3#card-image-set Set: #{data.card["Set Name"]}
+				h2#card-image-name #{data.card["Name"]}
+				h3#card-image-set Set: #{data.card["Set Name"]}
 				img(id="card-image" src=data.card["Image"])
 			div#stat-table
 				div(class="card-stat")
