@@ -40,7 +40,7 @@ body {
 
 #title {
     margin-left: 1rem;
-    font-size: clamp(1.8rem, 2vw, 3rem);
+    font-size: clamp(1.8rem, 4vw, 3rem);
 }
 
 #links {
