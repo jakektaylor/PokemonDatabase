@@ -15,6 +15,7 @@ body {
 #nav-bar {
     background-color: rgb(255, 61, 61);
     display: flex;
+    flex-direction: row;
     position: relative;
     color: rgb(255, 255, 255);
     font-family: "Freeman", sans-serif;
@@ -22,7 +23,7 @@ body {
     align-items: center;
     padding: 0 2%;
     box-shadow: 0 2px 5px rgb(0, 0, 0);
-    width: 100%;
+    max-width: 100%;
     min-height: 10%;
     margin-bottom: 3vh;
 }
@@ -31,21 +32,24 @@ body {
     display: inline-flex;
     flex-direction: row;
     align-items: center;
+    justify-content: center;
+    padding: 1% 0;
 }
 
 #title-div > img {
-    width: 6vw;
-    height: 6vw;
+    max-width: 3.5rem;
+    max-height: 3.5rem;
 }
 
 #title {
-    margin-left: 1rem;
-    font-size: clamp(1.8rem, 4vw, 3rem);
+    margin-left: min(2vw, 1rem);
+    font-size: clamp(1.4rem, 3vw, 4.5rem);
+    font-weight: 600;
 }
 
 #links {
     max-width: 30%;
-    padding: 0% 2%;
+    margin: 0% 1%;
 }
 
 #links > ul {
@@ -54,7 +58,7 @@ body {
 }
 
 #links > ul > li {
-    margin-right: 2vw;
+    margin-right: max(2rem, 2vw);
 }
 
 
@@ -62,7 +66,7 @@ body {
     color: rgb(108, 157, 235);
     transition: color 1s linear 0s;
     text-decoration: none;
-    font-size: clamp(0.8rem, 1.3vw, 2rem);
+    font-size: clamp(1rem, 1.6vw, 2rem);
     position:relative;
     display: block;
 }
@@ -137,10 +141,17 @@ body {
     padding: 0rem 1rem;
 }
 
-@media screen and (max-width: 760px) {
+@media (width <= 760px) {
     #nav-bar {
         flex-direction: column;
-        justify-content: start;
-        align-items: center;
+        justify-content: center;
+    }
+
+    #title {
+        white-space: nowrap;
+    }
+
+    #links > ul {
+        justify-content: center;
     }
 }

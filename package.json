@@ -5,6 +5,7 @@
   "main": "pokemon_server.js",
   "type": "module",
   "scripts": {
+    "dev": "npx nodemon -e js,pug,css pokemon_server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Jakob Taylor (101147594)",

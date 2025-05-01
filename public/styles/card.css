@@ -166,4 +166,13 @@ However, stat-table contains move-table.*/
         align-items: center;
         justify-content: start;
     }
+
+    #stat-table {
+        margin-top: 0.8rem;
+        width: 80%;
+    }
+
+    #image-column {
+        width: 60%;
+    }
 }
