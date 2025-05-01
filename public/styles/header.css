@@ -21,7 +21,7 @@ body {
     font-family: "Freeman", sans-serif;
     justify-content: space-between;
     align-items: center;
-    padding: 0 2%;
+    padding: 2% 2%;
     box-shadow: 0 2px 5px rgb(0, 0, 0);
     max-width: 100%;
     min-height: 10%;
@@ -33,7 +33,7 @@ body {
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    padding: 1% 0;
+    padding: 0;
 }
 
 #title-div > img {
@@ -130,15 +130,15 @@ body {
 }
 
 #search-button{
-    width: auto;
     height: 2rem;
     font-size: clamp(0.8rem, 1.4vw, 2rem);
-    background-color: rgb(148, 198, 244);
+    background-color: rgba(148, 198, 244, 1);
     font-family: "Freeman", sans-serif;
     color: rgba(255, 255, 255, 1);
     border-radius: 0.8rem;
     border-style: none;
-    padding: 0rem 1rem;
+    padding: 0.2rem 1rem;
+    box-shadow: 2px 2px 8px rgb(92, 124, 154);
 }
 
 @media (width <= 760px) {
@@ -147,11 +147,19 @@ body {
         justify-content: center;
     }
 
+    #nav-bar > * {
+        margin-top: 0.6rem;
+    } 
+
     #title {
         white-space: nowrap;
     }
 
     #links > ul {
         justify-content: center;
+    }
+
+    #select-option-label {
+        visibility: hidden;
     }
 }
