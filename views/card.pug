@@ -13,7 +13,7 @@ html
 		include ./partials/header.pug
 		div#main
 			each val in data.card["Types"]
-				video#video(autoplay loop muted)
+				video#video(autoplay loop muted playsinline)
 					source(src=`/type_videos/${val["Name"]}.mp4` type="video/mp4")
 				- break
 			div#image-column
